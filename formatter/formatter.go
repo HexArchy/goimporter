@@ -4,15 +4,17 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"goimporter/entities"
 	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"goimporter/entities"
 )
 
 // GroupImports organizes imports into logical groups and removes duplicates.
-func GroupImports(imports []entities.Import, prefixes []string, repo *entities.RepoConfig) entities.ImportGroups {
+// TODO: Add support for additional import groups with prefixes.
+func GroupImports(imports []entities.Import, _ []string, repo *entities.RepoConfig) entities.ImportGroups {
 	groups := entities.ImportGroups{}
 
 	// Track processed paths to avoid duplicates.

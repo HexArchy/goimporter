@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"goimporter/entities"
 	"os"
 	"strings"
+
+	"goimporter/entities"
 
 	"github.com/pkg/errors"
 )

@@ -3,10 +3,11 @@ package formatter
 import (
 	"bufio"
 	"bytes"
-	"goimporter/entities"
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"goimporter/entities"
 )
 
 // CollectImports extracts all import statements from Go source code.
@@ -15,6 +16,7 @@ func CollectImports(code []byte) ([]entities.Import, error) {
 
 	scanner := bufio.NewScanner(bytes.NewReader(code))
 	inImportBlock := false
+	foundFirstBlock := false
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -22,8 +24,11 @@ func CollectImports(code []byte) ([]entities.Import, error) {
 
 		// Detect import block boundaries.
 		if trimmedLine == "import (" {
-			inImportBlock = true
-			continue
+			if !foundFirstBlock {
+				foundFirstBlock = true
+				inImportBlock = true
+				continue
+			}
 		}
 
 		if inImportBlock && trimmedLine == ")" {

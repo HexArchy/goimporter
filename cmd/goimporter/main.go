@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"goimporter/config"
 	"goimporter/formatter"
-	"os"
 )
 
 func main() {

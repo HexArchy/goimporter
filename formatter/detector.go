@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"goimporter/entities"
 	"regexp"
 	"strings"
+
+	"goimporter/entities"
 )
 
 // IsGeneratedFile checks if a file is generated based on its first few lines.
@@ -15,12 +16,25 @@ func IsGeneratedFile(code []byte) bool {
 
 	// Check first few lines (more reliable than just the first line).
 	lineCount := 0
+	foundPackage := false
+
 	for scanner.Scan() && lineCount < 10 {
 		line := scanner.Text()
 		lineCount++
 
 		// Skip empty lines.
 		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		// Check if this is the package declaration.
+		if strings.HasPrefix(strings.TrimSpace(line), "package ") {
+			foundPackage = true
+			continue
+		}
+
+		// Generated markers should be before package declaration.
+		if foundPackage {
 			continue
 		}
 
@@ -44,12 +58,6 @@ func IsGeneratedFile(code []byte) bool {
 			if strings.Contains(lowercaseLine, marker) {
 				return true
 			}
-		}
-
-		// If we've found the package declaration without finding any generated markers,
-		// it's most likely not a generated file.
-		if strings.HasPrefix(strings.TrimSpace(line), "package ") && lineCount >= 5 {
-			return false
 		}
 	}
 

@@ -3,13 +3,14 @@ package formatter
 import (
 	"bytes"
 	"fmt"
-	"goimporter/config"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"goimporter/config"
 )
 
 // ProcessFile organizes imports in a single Go file.
@@ -34,7 +35,7 @@ func ProcessFile(filename string, cfg *config.Config) error {
 	// Collect all imports from the file.
 	allImports, err := CollectImports(code)
 	if err != nil {
-		return fmt.Errorf("collecting imports: %w", err)
+		return errors.Wrap(err, "collecting imports")
 	}
 
 	// If no imports were found, nothing to do.
@@ -73,7 +74,7 @@ func ProcessFile(filename string, cfg *config.Config) error {
 // ProcessGoFiles processes all Go files in a directory or recursively.
 func ProcessGoFiles(cfg *config.Config) error {
 	if cfg.Recursive {
-		return filepath.WalkDir(cfg.Dir, func(path string, d fs.DirEntry, err error) error {
+		err := filepath.WalkDir(cfg.Dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
@@ -90,6 +91,10 @@ func ProcessGoFiles(cfg *config.Config) error {
 			}
 			return nil
 		})
+		if err != nil {
+			return errors.Wrap(err, "walking directory")
+		}
+		return nil
 	}
 
 	// Process only go files in the specified directory.

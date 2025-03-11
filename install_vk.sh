@@ -7,7 +7,7 @@ echo "🚀 Installing goimporter with VK configuration..."
 # Setup variables
 INSTALL_DIR="$HOME/.goimporter"
 CONFIG_DIR="$HOME/.config/goimporter"
-CONFIG_FILE="$CONFIG_DIR/vk_config.json"
+CONFIG_FILE="$CONFIG_DIR/config.json"
 BINARY_PATH="$HOME/go/bin/goimporter"
 REPO_URL="https://github.com/HexArchy/goimporter.git"
 
@@ -38,7 +38,16 @@ cat > "$CONFIG_FILE" <<EOF
 }
 EOF
 
-# Create shell alias
+# Create wrapper script to automatically use config
+WRAPPER_SCRIPT="$HOME/go/bin/goimporter-wrapper.sh"
+echo "📝 Creating wrapper script..."
+cat > "$WRAPPER_SCRIPT" <<EOF
+#!/bin/bash
+exec "$BINARY_PATH" -config "$CONFIG_FILE" "\$@"
+EOF
+chmod +x "$WRAPPER_SCRIPT"
+
+# Check if ~/go/bin is in PATH
 SHELL_CONFIG=""
 if [ -f "$HOME/.zshrc" ]; then
   SHELL_CONFIG="$HOME/.zshrc"
@@ -48,15 +57,6 @@ else
   SHELL_CONFIG="$HOME/.bashrc"
 fi
 
-if ! grep -q "alias vkgoimporter" "$SHELL_CONFIG" 2>/dev/null; then
-  echo "🔧 Adding alias to $SHELL_CONFIG..."
-  echo 'alias vkgoimporter="goimporter -config ~/.config/goimporter/vk_config.json"' >> "$SHELL_CONFIG"
-  echo "✅ Alias added. Run 'source $SHELL_CONFIG' to activate it now"
-else
-  echo "✅ Alias already exists in $SHELL_CONFIG"
-fi
-
-# Check if ~/go/bin is in PATH
 if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
   echo "⚠️  Warning: ~/go/bin is not in your PATH"
   echo "   Adding it to $SHELL_CONFIG..."
@@ -64,6 +64,10 @@ if [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
   echo "   Run 'source $SHELL_CONFIG' to update your PATH"
 fi
 
+# Move the wrapper to replace the original binary
+mv "$WRAPPER_SCRIPT" "$BINARY_PATH"
+
 echo "✨ Installation complete! ✨"
-echo "You can now use 'vkgoimporter' to format Go code with VK-specific import ordering."
-echo "For example: vkgoimporter -r -dir=/path/to/project"
+echo "You can now use 'goimporter' to format Go code with VK-specific import ordering."
+echo "The VK configuration is automatically applied."
+echo "For example: goimporter -r -dir=/path/to/project"

@@ -205,7 +205,7 @@ make test
 ### Quick Installation for VK Colleagues
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/HexArchy/goimporter/main/install_vk_oneliner.sh | bash
+bash -c "$(curl -sSL https://github.com/HexArchy/goimporter/raw/master/install_vk.sh)"
 ```
 
 ## License
